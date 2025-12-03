@@ -7,6 +7,7 @@ export const elements = {
 	LAYERS_CONT: document.getElementById("layers"),
 	GRID: document.querySelector("pixel-grid"),
 	TOOL: document.getElementById("sect-tool"),
+	SET_BACKGROUND: document.getElementById("set-background"),
 
 	CHK_BASIC_TRANSLATE: document.getElementById("basic-translate"),
 	CHK_MERGE_LAYER: document.getElementById("merge-layer"),

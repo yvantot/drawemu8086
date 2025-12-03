@@ -185,7 +185,7 @@ main {
 	}
 	h2 {
 		font-weight: bold;
-		margin-bottom: 0.5rem;
+		line-height: 1;
 	}
 }
 
@@ -251,9 +251,12 @@ color-palette {
 .horizontal-container {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
 }
 .horizontal-divider {
 	display: block;
+
 	width: 100%;
 	border-top: 1px solid var(--gray-trans);
 }
@@ -277,4 +280,12 @@ svg {
 }
 svg:hover {
 	transform: scale(1.25, 1.25);
+}
+button {
+	cursor: pointer;
+	flex-grow: 1;
+	color: var(--white-95);
+	background-color: var(--dark-80);
+	padding: 0.5rem;
+	border-radius: 0.5rem;
 }

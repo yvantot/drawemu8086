@@ -14,6 +14,11 @@ const getStruct = () => {
 
 const layers = [];
 
+const grid = {
+	columns: 80,
+	rows: 25,
+};
+
 let current_layer_id = null;
 
 const emuColors = {
@@ -142,8 +147,8 @@ class PixelGrid extends HTMLElement {
 
 	render() {
 		const size = parseInt(this.getAttribute("size")) || 10;
-		const rows = parseInt(this.getAttribute("rows")) || 25;
-		const columns = parseInt(this.getAttribute("columns")) || 80;
+		const rows = parseInt(this.getAttribute("rows")) || grid.rows;
+		const columns = parseInt(this.getAttribute("columns")) || grid.columns;
 		for (let i = 0; i < rows; i++) {
 			for (let j = 0; j < columns; j++) {
 				const cell = document.createElement("div");
@@ -325,6 +330,19 @@ function init() {
 
 	elements.LAYER_ADD.addEventListener("click", () => {
 		elements.LAYERS_CONT.append(document.createElement("drawing-layer"));
+	});
+
+	elements.SET_BACKGROUND.addEventListener("click", () => {
+		if (current_layer_id == null) return;
+		const layer_index = layers.findIndex((e) => e.id == current_layer_id);
+		const layer = layers[layer_index];
+		for (let i = 0; i < grid.rows; i++) {
+			for (let j = 0; j < grid.columns; j++) {
+				const id = `${i},${j}`;
+				layer.pixels[id] = { fgc: brush_setting.fgc, bgc: brush_setting.bgc, char: brush_setting.char };
+			}
+		}
+		render_pixels();
 	});
 
 	elements.TOOL.addEventListener("click", (e) => {
