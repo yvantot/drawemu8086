@@ -96,6 +96,8 @@ class PixelGrid extends HTMLElement {
 		this.addEventListener("mousedown", (e) => {
 			mouse_state.is_pressed = true;
 			mouse_state.button = e.button;
+
+			this.paint(e);
 		});
 		this.addEventListener("mouseleave", () => {
 			mouse_state.is_pressed = false;
@@ -106,7 +108,6 @@ class PixelGrid extends HTMLElement {
 			mouse_state.button = null;
 		});
 
-		this.addEventListener("click", (e) => this.paint(e, true));
 		this.addEventListener("mousemove", (e) => this.paint(e));
 	}
 
