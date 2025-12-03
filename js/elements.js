@@ -9,6 +9,8 @@ export const elements = {
 	TOOL: document.getElementById("sect-tool"),
 	SET_BACKGROUND: document.getElementById("set-background"),
 
+	PIXEL_GRID: document.getElementById("pixel-grid"),
+
 	CHK_BASIC_TRANSLATE: document.getElementById("basic-translate"),
 	CHK_MERGE_LAYER: document.getElementById("merge-layer"),
 	CHK_PIXEL_TO_RECT: document.getElementById("pixel-to-rect"),

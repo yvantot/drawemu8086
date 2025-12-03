@@ -352,11 +352,17 @@ function init() {
 
 		switch (target.dataset.feature) {
 			case "zoom-in": {
-				alert(1);
+				const pixel_grid = elements.PIXEL_GRID;
+				let current_zoom = pixel_grid.style.scale ? parseFloat(pixel_grid.style.scale) : 1;
+				current_zoom += 0.2;
+				pixel_grid.style.scale = Math.min(current_zoom, 2);
 				break;
 			}
 			case "zoom-out": {
-				alert(1);
+				const pixel_grid = elements.PIXEL_GRID;
+				let current_zoom = pixel_grid.style.scale ? parseFloat(pixel_grid.style.scale) : 1;
+				current_zoom -= 0.2;
+				pixel_grid.style.scale = Math.max(current_zoom, 0.7);
 				break;
 			}
 			case "translate": {
