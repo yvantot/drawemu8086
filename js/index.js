@@ -369,15 +369,29 @@ function init() {
 				break;
 			}
 			case "translate": {
-				const { basic, addSetups, cxOptimize, mergeLayer, layerComments, pixelToRect, useProc, xyComments, layerByLayer, layerToFrame } = getCheckboxSettings();
+				const { basic, addSetups, cxOptimize, mergeLayer, layerComments, pixelToRect, layerByLayer, layerToFrame } = getCheckboxSettings();
 
 				let code = "";
 
+				if (addSetups) {
+					code += `
+.MODEL SMALL
+.STACK 100H
+.CODE
+MAIN PROC
+; Set the video mode
+MOV AH, 00H
+MOV AL, 03H
+INT 10H
+`;
+				}
 				if (cxOptimize) {
 					if (mergeLayer) code += cxOptimizedTranslate(mergeLayers());
 					else if (layerByLayer)
 						for (let i in layers) {
 							if (layers[i].visible == false) continue;
+							if (layerToFrame) code += asmClearScreen();
+							if (layerComments) code += `; ${layers[i].name}`;
 							code += cxOptimizedTranslate(layers[i].pixels);
 						}
 				} else if (pixelToRect) {
@@ -385,25 +399,45 @@ function init() {
 					else if (layerByLayer) {
 						for (let i in layers) {
 							if (layers[i].visible == false) continue;
+							if (layerToFrame) code += asmClearScreen();
+							if (layerComments) code += `; ${layers[i].name}`;
 							code += generateOptimizedAssembly(layers[i].pixels);
 						}
 					}
-				} else if (useProc) {
-					null;
 				} else if (basic) {
 					if (mergeLayer) code += basicTranslate(mergeLayers());
 					else if (layerByLayer)
 						for (let i in layers) {
 							if (layers[i].visible == false) continue;
+							if (layerToFrame) code += asmClearScreen();
+							if (layerComments) code += `; ${layers[i].name}`;
 							code += basicTranslate(layers[i].pixels);
 						}
 				}
-
-				downloadData("DrawEmu8086.asm", code);
+				if (addSetups) {
+					code += `
+MAIN ENDP
+END MAIN`;
+				}
+				downloadData("DrawEmu8086.asm", code.trim());
 				break;
 			}
 		}
 	});
+}
+
+function asmClearScreen() {
+	return `	
+; Clear screen
+MOV AH, 06H
+MOV AL, 00H
+MOV BH, 00H
+MOV CH, 00H
+MOV CL, 00H
+MOV DH, 24H
+MOV DL, 4FH
+INT 10H
+`;
 }
 
 function cxOptimizedTranslate(pixels) {
@@ -515,11 +549,6 @@ function generateOptimizedAssembly(pixelData) {
 	});
 
 	const instructions = [];
-	instructions.push(`
-; Set the video mode
-MOV AH, 00H
-MOV AL, 03H
-INT 10H`);
 
 	// 2. Greedy Meshing Algorithm
 	for (let y = minY; y <= maxY; y++) {
@@ -580,14 +609,14 @@ function formatAssembly(x, y, w, h, colorAttr) {
 	const colorHex = colorAttr.toString(16).toUpperCase().padStart(2, "0") + "H";
 
 	return `
-    MOV AH, 06H
-    MOV AL, 00H
-    MOV BH, 0${colorHex}
-    MOV CH, 0${toHex(rowStart)}
-    MOV CL, 0${toHex(colStart)}
-    MOV DH, 0${toHex(rowEnd)}
-    MOV DL, 0${toHex(colEnd)}
-    INT 10H`;
+MOV AH, 06H
+MOV AL, 00H
+MOV BH, 0${colorHex}
+MOV CH, 0${toHex(rowStart)}
+MOV CL, 0${toHex(colStart)}
+MOV DH, 0${toHex(rowEnd)}
+MOV DL, 0${toHex(colEnd)}
+INT 10H`;
 }
 
 function downloadData(filename, data) {

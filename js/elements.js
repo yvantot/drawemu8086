@@ -8,6 +8,7 @@ export const elements = {
 	GRID: document.querySelector("pixel-grid"),
 	TOOL: document.getElementById("sect-tool"),
 	SET_BACKGROUND: document.getElementById("set-background"),
+	IMPORT: document.getElementById("import"),
 
 	PIXEL_GRID: document.getElementById("pixel-grid"),
 
@@ -15,8 +16,6 @@ export const elements = {
 	CHK_MERGE_LAYER: document.getElementById("merge-layer"),
 	CHK_PIXEL_TO_RECT: document.getElementById("pixel-to-rect"),
 	CHK_CX_OPTIMIZE: document.getElementById("cx-optimize"),
-	CHK_USE_PROC: document.getElementById("use-proc"),
-	CHK_XY_COMMENTS: document.getElementById("xy-comments"),
 	CHK_LAYER_COMMENTS: document.getElementById("layer-comments"),
 	CHK_ADD_SETUPS: document.getElementById("add-setups"),
 	CHK_LAYER_BY_LAYER: document.getElementById("layer-by-layer"),
@@ -29,8 +28,6 @@ export function getCheckboxSettings() {
 		mergeLayer: elements.CHK_MERGE_LAYER.checked,
 		pixelToRect: elements.CHK_PIXEL_TO_RECT.checked,
 		cxOptimize: elements.CHK_CX_OPTIMIZE.checked,
-		useProc: elements.CHK_USE_PROC.checked,
-		xyComments: elements.CHK_XY_COMMENTS.checked,
 		layerComments: elements.CHK_LAYER_COMMENTS.checked,
 		addSetups: elements.CHK_ADD_SETUPS.checked,
 		layerByLayer: elements.CHK_LAYER_BY_LAYER.checked,
