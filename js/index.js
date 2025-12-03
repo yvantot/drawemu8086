@@ -91,7 +91,7 @@ function render_pixels() {
 
 class PixelGrid extends HTMLElement {
 	static get observedAttributes() {
-		return ["rows", "columns", "size", "has-border"];
+		return ["cell-size"];
 	}
 
 	constructor() {
@@ -121,6 +121,7 @@ class PixelGrid extends HTMLElement {
 	}
 	attributeChangedCallback() {
 		this.render();
+		render_pixels();
 	}
 
 	paint(e, click) {
@@ -146,7 +147,8 @@ class PixelGrid extends HTMLElement {
 	}
 
 	render() {
-		const size = parseInt(this.getAttribute("size")) || 10;
+		this.innerHTML = "";
+		const size = parseInt(this.getAttribute("cell-size")) || 10;
 		const rows = parseInt(this.getAttribute("rows")) || grid.rows;
 		const columns = parseInt(this.getAttribute("columns")) || grid.columns;
 		for (let i = 0; i < rows; i++) {
@@ -353,16 +355,16 @@ function init() {
 		switch (target.dataset.feature) {
 			case "zoom-in": {
 				const pixel_grid = elements.PIXEL_GRID;
-				let current_zoom = pixel_grid.style.scale ? parseFloat(pixel_grid.style.scale) : 1;
-				current_zoom += 0.2;
-				pixel_grid.style.scale = Math.min(current_zoom, 2);
+				let current_size = parseInt(pixel_grid.getAttribute("cell-size"));
+				current_size += 1;
+				pixel_grid.setAttribute("cell-size", current_size);
 				break;
 			}
 			case "zoom-out": {
 				const pixel_grid = elements.PIXEL_GRID;
-				let current_zoom = pixel_grid.style.scale ? parseFloat(pixel_grid.style.scale) : 1;
-				current_zoom -= 0.2;
-				pixel_grid.style.scale = Math.max(current_zoom, 0.7);
+				let current_size = parseInt(pixel_grid.getAttribute("cell-size"));
+				current_size -= 1;
+				pixel_grid.setAttribute("cell-size", Math.max(current_size, 5));
 				break;
 			}
 			case "translate": {

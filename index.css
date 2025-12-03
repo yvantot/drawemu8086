@@ -36,7 +36,7 @@
 	user-select: none;
 	font-weight: normal;
 	text-decoration: none;
-	font-size: clamp(10px, 1.5vw, 14px);
+	font-size: clamp(10px, 1vw, 13px);
 	font-family: Quicksand;
 	color: var(--white-95);
 	border: none;
@@ -52,6 +52,7 @@ body {
 }
 header {
 	position: fixed;
+	z-index: 99;
 	top: 0;
 	right: 0.1rem;
 	height: 5vh;
@@ -159,15 +160,7 @@ main {
 		}
 	}
 }
-#sect-grid {
-	background-color: var(--dark-95);
-	flex-grow: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	scrollbar-width: thin;
-	overflow: auto;
-}
+
 #sect-tool {
 	display: flex;
 	flex-direction: column;
@@ -192,9 +185,18 @@ main {
 		line-height: 1;
 	}
 }
-
+#sect-grid {
+	background-color: var(--dark-95);
+	flex-grow: 1;
+	display: flex;
+	position: relative;
+	align-items: flex-start;
+	justify-content: flex-start;
+	overflow: auto;
+}
 pixel-grid {
 	display: grid;
+	margin: auto;
 	border: 2px solid var(--gray-trans);
 	background-color: black;
 
