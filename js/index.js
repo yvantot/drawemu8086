@@ -246,6 +246,7 @@ class DrawingLayer extends HTMLElement {
 		this.render();
 
 		this.querySelector("svg[data-feature='layer-delete'").addEventListener("click", () => {
+			current_layer_id = null;
 			const layer_index = layers.findIndex((e) => e.id == this.layer.id);
 			layers.splice(layer_index, 1);
 			this.remove();
@@ -347,14 +348,22 @@ function init() {
 
 				if (cxOptimize) {
 					if (mergeLayer) code += cxOptimizedTranslate(mergeLayers());
-					else if (layerByLayer) for (let i in layers) code += cxOptimizedTranslate(layers[i].pixels);
+					else if (layerByLayer)
+						for (let i in layers) {
+							if (layers[i].visible == false) continue;
+							code += cxOptimizedTranslate(layers[i].pixels);
+						}
 				} else if (pixelToRect) {
 					null;
 				} else if (useProc) {
 					null;
 				} else if (basic) {
 					if (mergeLayer) code += basicTranslate(mergeLayers());
-					else if (layerByLayer) for (let i in layers) code += basicTranslate(layers[i].pixels);
+					else if (layerByLayer)
+						for (let i in layers) {
+							if (layers[i].visible == false) continue;
+							code += basicTranslate(layers[i].pixels);
+						}
 				}
 
 				downloadData("DrawEmu8086.asm", code);
@@ -386,7 +395,6 @@ function cxOptimizedTranslate(pixels) {
 		let start_col = null;
 		for (let p in rows[j]) {
 			const index = parseInt(p);
-			console.log;
 			if (start_col == null) start_col = rows[j][index][0];
 			if (rows[j][index][0] + 1 == rows[j][index + 1]?.[0] && rows[j][index][1] == rows[j][index + 1]?.[1]) {
 				if (start_col == null) start_col = rows[j][index][0];
