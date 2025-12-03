@@ -3,41 +3,140 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Emu8086 Pixel Art</title>
+		<title>DrawEmu8086</title>
+		<meta name="description" content="Automate emu8086 or any DOS asm pixel drawing with this translator" />
 		<link rel="stylesheet" href="index.css" />
-		<script defer type="module" src="index.js"></script>
+		<script defer type="module" src="./js/index.js"></script>
 	</head>
 	<body>
+		<svg>
+			<symbol id="up" viewBox="0 -960 960 960">
+				<path d="M440-320h80v-168l64 64 56-56-160-160-160 160 56 56 64-64v168Zm40 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+			</symbol>
+			<symbol id="down" viewBox="0 -960 960 960">
+				<path d="m480-320 160-160-56-56-64 64v-168h-80v168l-64-64-56 56 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+			</symbol>
+			<symbol id="delete" viewBox="0 -960 960 960">
+				<path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+			</symbol>
+			<symbol id="visible" viewBox="0 -960 960 960">
+				<path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-280Z" />
+			</symbol>
+		</svg>
+		<header>
+			<p class="title">DrawEmu8086 Translator</p>
+			<p class="description">- Emu8086, or any DOS emulator pixel drawing translation</p>
+		</header>
 		<main>
-			<section id="palette">
-				<div>
-					<div>Character</div>
-					<input type="text" id="brush-character" autocomplete="off" />
+			<!-- Menu -->
+			<section class="sect-cont" id="sect-menu">
+				<!-- Instruction -->
+				<div class="menu-group">
+					<div class="menu-subgroup">
+						<h2>Controls</h2>
+						<p>Press 'Left' mouse button to paint pixel</p>
+						<p>Press 'Right' mouse button to paint text</p>
+						<p>Press 'Middle' mouse button to erase pixel & text</p>
+					</div>
 				</div>
-				<div>
-					<div>Foreground Color</div>
-					<color-palette color-for="fg"></color-palette>
+				<!-- Drawing -->
+				<div class="menu-group">
+					<div class="menu-subgroup">
+						<div class="horizontal-container">
+							<h2>Foreground Text</h2>
+							<span class="current-draw-value" id="current-char"></span>
+						</div>
+						<input type="text" id="char-value" />
+						<char-palette></char-palette>
+					</div>
+					<div class="menu-subgroup">
+						<div class="horizontal-container">
+							<h2>Foreground Color</h2>
+							<span class="current-draw-value" id="current-fg"></span>
+						</div>
+						<color-palette color-for="fg"></color-palette>
+					</div>
+					<div class="menu-subgroup">
+						<div class="horizontal-container">
+							<h2>Background Color</h2>
+							<span class="current-draw-value" id="current-bg"></span>
+						</div>
+						<color-palette color-for="bg"></color-palette>
+					</div>
 				</div>
-				<div>
-					<div>Background Color</div>
-					<color-palette color-for="bg"></color-palette>
+				<!-- Translate -->
+				<div class="menu-group">
+					<div class="menu-subgroup">
+						<h2>Translation</h2>
+						<div class="horizontal-container">
+							<p>No Optimization</p>
+							<input type="radio" id="basic-translate" name="optimization" checked />
+						</div>
+						<div class="horizontal-container">
+							<p>Convert pixel to rectangle</p>
+							<input type="radio" id="pixel-to-rect" name="optimization" disabled />
+						</div>
+						<div class="horizontal-container">
+							<p>CX optimization</p>
+							<input type="radio" id="cx-optimize" name="optimization" />
+						</div>
+						<div class="horizontal-container">
+							<p>Use PROC</p>
+							<input type="radio" id="use-proc" name="optimization" disabled />
+						</div>
+						<div class="horizontal-divider"></div>
+						<div class="horizontal-container">
+							<p>Render layer by layer</p>
+							<input type="radio" id="layer-by-layer" name="layer-optimization" checked />
+						</div>
+						<div class="horizontal-container">
+							<p>Translate layers as frames</p>
+							<input type="radio" id="layer-to-frame" name="layer-optimization" disabled />
+						</div>
+						<div class="horizontal-container">
+							<p>Merge layers</p>
+							<input type="radio" id="merge-layer" name="layer-optimization" />
+						</div>
+						<div class="horizontal-divider"></div>
+						<div class="horizontal-container">
+							<p>Add xy comments</p>
+							<input type="checkbox" id="xy-comments" />
+						</div>
+						<div class="horizontal-container">
+							<p>Add layer name comments</p>
+							<input type="checkbox" id="layer-comments" />
+						</div>
+						<div class="horizontal-container">
+							<p>Add setups</p>
+							<input type="checkbox" id="add-setups" />
+						</div>
+					</div>
 				</div>
 			</section>
-			<div class="horizontal-c" id="drawing-space-container">
-				<!-- 2D grid -->
-				<section id="grid">
-					<pixel-grid></pixel-grid>
-				</section>
-				<!-- Frame tools -->
-				<section id="frame"></section>
-			</div>
-			<section id="grid-menu">
-				<div>
-					<svg data-feature="zoom-in" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" /></svg>
-					<svg data-feature="zoom-out" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400ZM280-540v-80h200v80H280Z" /></svg>
-					<svg data-feature="clear" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M120-280v-80h560v80H120Zm80-160v-80h560v80H200Zm80-160v-80h560v80H280Z" /></svg>
-					<svg data-feature="translate" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" /></svg>
+			<!-- Layers -->
+			<section class="sect-cont" id="sect-layers">
+				<div class="menu-group">
+					<div class="menu-subgroup">
+						<h2>Layers</h2>
+						<p>Layers allow you to paint safely</p>
+						<p>Layers can produce animations if done correctly on Assembly</p>
+					</div>
 				</div>
+				<!-- Rename, Delete -->
+				<div id="layers"></div>
+				<div class="horizontal-container">
+					<svg id="add-layer" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z" /></svg>
+				</div>
+			</section>
+			<!-- Grid -->
+			<section class="sect-cont" id="sect-grid">
+				<pixel-grid></pixel-grid>
+			</section>
+			<!-- Toolbar -->
+			<section class="sect-cont" id="sect-tool">
+				<svg data-feature="zoom-in" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Zm-40-60v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z" /></svg>
+				<svg data-feature="zoom-out" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400ZM280-540v-80h200v80H280Z" /></svg>
+				<svg data-feature="translate" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCCCCC"><path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z" /></svg>
 			</section>
 		</main>
 	</body>
