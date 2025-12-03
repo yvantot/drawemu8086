@@ -87,6 +87,7 @@ function render_pixels() {
 			pixel_element.innerHTML = pixel_data.char;
 		}
 	}
+	console.log(layers);
 }
 
 class PixelGrid extends HTMLElement {
@@ -380,7 +381,13 @@ function init() {
 							code += cxOptimizedTranslate(layers[i].pixels);
 						}
 				} else if (pixelToRect) {
-					null;
+					if (mergeLayer) code += generateOptimizedAssembly(mergeLayers());
+					else if (layerByLayer) {
+						for (let i in layers) {
+							if (layers[i].visible == false) continue;
+							code += generateOptimizedAssembly(layers[i].pixels);
+						}
+					}
 				} else if (useProc) {
 					null;
 				} else if (basic) {
@@ -475,6 +482,112 @@ INT 10H
 `;
 	}
 	return code;
+}
+
+function generateOptimizedAssembly(pixelData) {
+	const grid = {};
+	const visited = new Set();
+
+	// 1. Pre-process: Parse "y,x" keys into a structured grid
+	// We determine min/max bounds to limit our loops
+	let minY = Infinity,
+		maxY = -Infinity;
+	let minX = Infinity,
+		maxX = -Infinity;
+
+	Object.keys(pixelData).forEach((key) => {
+		const [yStr, xStr] = key.split(",");
+		const y = parseInt(yStr);
+		const x = parseInt(xStr);
+		const p = pixelData[key];
+
+		// Combine bg and fg into one hex byte (e.g., F and 0 -> 0xF0)
+		// Note: 8086 color attribute is (Background << 4) | Foreground
+		const colorByte = (parseInt(p.bgc, 16) << 4) | parseInt(p.fgc, 16);
+
+		if (!grid[y]) grid[y] = {};
+		grid[y][x] = colorByte;
+
+		if (y < minY) minY = y;
+		if (y > maxY) maxY = y;
+		if (x < minX) minX = x;
+		if (x > maxX) maxX = x;
+	});
+
+	const instructions = [];
+	instructions.push(`
+; Set the video mode
+MOV AH, 00H
+MOV AL, 03H
+INT 10H`);
+
+	// 2. Greedy Meshing Algorithm
+	for (let y = minY; y <= maxY; y++) {
+		if (!grid[y]) continue; // Skip empty rows
+
+		for (let x = minX; x <= maxX; x++) {
+			// Check if pixel exists and hasn't been handled yet
+			if (grid[y][x] !== undefined && !visited.has(`${y},${x}`)) {
+				let width = 1;
+				let height = 1;
+				let color = grid[y][x];
+
+				// A. Expand Right (Width)
+				// Keep going right as long as pixel exists, matches color, and is unvisited
+				while (grid[y][x + width] === color && !visited.has(`${y},${x + width}`)) {
+					width++;
+				}
+
+				// B. Expand Down (Height)
+				// We must check that the WHOLE width is available in the next row
+				let canExpandDown = true;
+				while (canExpandDown) {
+					let nextY = y + height;
+					// Check every pixel in this next row for the current width
+					for (let w = 0; w < width; w++) {
+						if (!grid[nextY] || grid[nextY][x + w] !== color || visited.has(`${nextY},${x + w}`)) {
+							canExpandDown = false;
+							break;
+						}
+					}
+					if (canExpandDown) height++;
+				}
+
+				// C. Mark all these pixels as visited
+				for (let h = 0; h < height; h++) {
+					for (let w = 0; w < width; w++) {
+						visited.add(`${y + h},${x + w}`);
+					}
+				}
+
+				// D. Generate 8086 Assembly for this Rectangle
+				instructions.push(formatAssembly(x, y, width, height, color));
+			}
+		}
+	}
+
+	return instructions.join("\n\n");
+}
+
+function formatAssembly(x, y, w, h, colorAttr) {
+	const rowStart = y;
+	const colStart = x;
+
+	const rowEnd = y + h - 1;
+	const colEnd = x + w - 1;
+
+	const toHex = (num) => num.toString(16).toUpperCase().padStart(2, "0") + "H";
+	const colorHex = colorAttr.toString(16).toUpperCase().padStart(2, "0") + "H";
+
+	return `
+    MOV AH, 06H
+    MOV AL, 00H
+    MOV BH, 0${colorHex}
+    MOV CH, 0${toHex(rowStart)}
+    MOV CL, 0${toHex(colStart)}
+    MOV DH, 0${toHex(rowEnd)}
+    MOV DL, 0${toHex(colEnd)}
+    INT 10H`;
 }
 
 function downloadData(filename, data) {
